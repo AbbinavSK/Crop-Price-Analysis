@@ -97,9 +97,9 @@ district = st.sidebar.selectbox('Districts', mp_districts)
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 # Importing and cleaning the data
-data = pd.read_excel("data/SOYBEAN-MODALPRICE-MONTHLY(Selected).xlsx")
-prec_data = pd.read_csv("data/PRECTOTCORR_MONTHLY_MP.csv")
-tmax_data = pd.read_csv("data/T2M_MAX_MONTHLY_MP.csv")
+data = pd.read_excel("SOYBEAN-MODALPRICE-MONTHLY(Selected).xlsx")
+prec_data = pd.read_csv("PRECTOTCORR_MONTHLY_MP.csv")
+tmax_data = pd.read_csv("T2M_MAX_MONTHLY_MP.csv")
 
 data["Price Date"] = pd.to_datetime(data["Price Date"])
 prec_data = cleaning_met_data(prec_data)
@@ -109,7 +109,7 @@ df_logreturns = price_log_returns(data)
 df_condvol = price_cond_vol(df_logreturns)
 
 # Importing and cleaning the LSTM prediction data
-lstm_data = pd.read_csv("data/Soybean-MP-districtlevel-LSTMpred.csv")
+lstm_data = pd.read_csv("Soybean-MP-districtlevel-LSTMpred.csv")
 lstm_dates = df_condvol["Price Date"].iloc[-len(lstm_data):].reset_index(drop=True)
 df_lstm_pred = pd.DataFrame({
     "Price Date": lstm_dates,
