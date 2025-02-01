@@ -98,8 +98,8 @@ district = st.sidebar.selectbox('Districts', mp_districts)
 #--------------------------------------------------------------------------------------------------------------------------------------
 # Importing and cleaning the data
 data = pd.read_excel("data/SOYBEAN-MODALPRICE-MONTHLY(Selected).xlsx")
-prec_data = pd.read_excel("data/PRECTOTCORR_MONTHLY.xlsx", sheet_name="Madhya Pradesh")
-tmax_data = pd.read_excel("data/T2M_MAX_MONTHLY.xlsx", sheet_name="Madhya Pradesh")
+prec_data = pd.read_csv("data/PRECTOTCORR_MONTHLY_MP.csv")
+tmax_data = pd.read_csv("data/T2M_MAX_MONTHLY_MP.csv")
 
 data["Price Date"] = pd.to_datetime(data["Price Date"])
 prec_data = cleaning_met_data(prec_data)
