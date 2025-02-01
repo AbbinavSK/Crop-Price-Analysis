@@ -109,7 +109,7 @@ df_logreturns = price_log_returns(data)
 df_condvol = price_cond_vol(df_logreturns)
 
 # Importing and cleaning the LSTM prediction data
-lstm_data = pd.read_csv("Soybean-MP-districtlevel-LSTMpred.csv")
+lstm_data = pd.read_csv("data\Soybean-MP-districtlevel-LSTMpred.csv")
 lstm_dates = df_condvol["Price Date"].iloc[-len(lstm_data):].reset_index(drop=True)
 df_lstm_pred = pd.DataFrame({
     "Price Date": lstm_dates,
