@@ -91,9 +91,7 @@ st.title(body="Crop Price Analysis: Soybean in Madhya Pradesh", anchor="center")
 
 # Sidebar Elements:
 st.sidebar.header("Input Parameters")
-st.sidebar.write("Adjust the values as required")
-
-district = st.sidebar.selectbox('Districts', mp_districts)
+analysis_type = st.sidebar.radio("Select Analysis Level", ["District-Level", "State-Level"])
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 # Importing and cleaning the data
@@ -108,27 +106,39 @@ tmax_data = cleaning_met_data(tmax_data)
 df_logreturns = price_log_returns(data)
 df_condvol = price_cond_vol(df_logreturns)
 
-# Importing and cleaning the LSTM prediction data
-lstm_data = pd.read_csv("Soybean-MP-districtlevel-LSTMpred.csv")
-lstm_dates = df_condvol["Price Date"].iloc[-len(lstm_data):].reset_index(drop=True)
-df_lstm_pred = pd.DataFrame({
-    "Price Date": lstm_dates,
-    "LSTM Prediction": lstm_data[district].iloc[:len(lstm_data)].values
-})
-
-
 #--------------------------------------------------------------------------------------------------------------------------------------
-# Visualising the Soybean prices
-st.markdown("Soybean Modal Price plotted district wise: ")
-plot_graph(x_values=[data["Price Date"]], y_values=[data[district]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
-# Visualising the Soybean price log returns 
-st.markdown("Soybean Price Log Returns plotted district wise: ")
-plot_graph(x_values=[df_logreturns["Price Date"]], y_values=[df_logreturns[district]], labels="Log Returns", colors=["green"], xaxis_title="Date", yaxis_title="Log Returns")
+# # District-Level Analysis
+# State-Level Analysis
+if analysis_type == "State-Level":
+    st.title("State-Level Analysis")
 
-# Visualising the Soybean price conditional volatility from EGARCH(1, 1, 1) model
-st.markdown("Soybean Price Conditional Volatility plotted district wise: ")
-plot_graph(x_values=[df_condvol["Price Date"]], y_values=[df_condvol[district]], labels="Conditional Volatility", colors=["magenta"], xaxis_title="Date", yaxis_title="Conditional Volatility")
+    st.markdown("**Changes in Soybean Price Volatility across Madhya Pradesh:**")
+    st.image("Volatility-Surface-MP.gif", use_column_width=True)
 
-# Visualising the Soybean price conditional volatility with LSTM prediction
-st.markdown("Soybean Price Conditional Volatility with LSTM Prediction plotted district wise:  ")
-plot_graph(x_values=[df_condvol["Price Date"], df_lstm_pred["Price Date"]], y_values=[df_condvol[district], df_lstm_pred["LSTM Prediction"]], labels=["Conditional Volatility", "LSTM Prediction"], colors=["red", "cyan"],xaxis_title="Date",yaxis_title="Conditional Volatility")
+elif analysis_type == "District-Level":
+    district = st.sidebar.selectbox('Districts', mp_districts)
+  
+    lstm_data = pd.read_csv("Soybean-MP-districtlevel-LSTMpred.csv")
+    lstm_dates = df_condvol["Price Date"].iloc[-len(lstm_data):].reset_index(drop=True)
+    df_lstm_pred = pd.DataFrame({
+        "Price Date": lstm_dates,
+        "LSTM Prediction": lstm_data[district].iloc[:len(lstm_data)].values
+    })
+  
+    st.title("District-Level Analysis")
+
+    # Visualising the Soybean prices
+    st.markdown(f"**Soybean Modal Price plotted for {district}:**")
+    plot_graph(x_values=[data["Price Date"]], y_values=[data[district]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
+
+    # Visualising the Soybean price log returns 
+    st.markdown(f"**Soybean Price Log Returns plotted for {district}:**")
+    plot_graph(x_values=[df_logreturns["Price Date"]], y_values=[df_logreturns[district]], labels="Log Returns", colors=["green"], xaxis_title="Date", yaxis_title="Log Returns")
+
+    # Visualising the Soybean price conditional volatility from EGARCH(1, 1, 1) model
+    st.markdown(f"**Soybean Price Conditional Volatility for {district}:**")
+    plot_graph(x_values=[df_condvol["Price Date"]], y_values=[df_condvol[district]], labels="Conditional Volatility", colors=["magenta"], xaxis_title="Date", yaxis_title="Conditional Volatility")
+
+    # Visualising the Soybean price conditional volatility with LSTM prediction
+    st.markdown(f"**Soybean Price Conditional Volatility with LSTM Prediction for {district}:**")
+    plot_graph(x_values=[df_condvol["Price Date"], df_lstm_pred["Price Date"]], y_values=[df_condvol[district], df_lstm_pred["LSTM Prediction"]], labels=["Conditional Volatility", "LSTM Prediction"], colors=["red", "cyan"],xaxis_title="Date",yaxis_title="Conditional Volatility")
