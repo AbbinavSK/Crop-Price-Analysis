@@ -110,7 +110,6 @@ df_condvol = price_cond_vol(df_logreturns)
 # # District-Level Analysis
 # State-Level Analysis
 if analysis_type == "State-Level":
-    st.title("State-Level Analysis")
 
     st.markdown("**Changes in Soybean Price Volatility across Madhya Pradesh:**")
     st.image("Volatility-Surface-MP.gif", use_column_width=True)
@@ -124,8 +123,6 @@ elif analysis_type == "District-Level":
         "Price Date": lstm_dates,
         "LSTM Prediction": lstm_data[district].iloc[:len(lstm_data)].values
     })
-  
-    st.title("District-Level Analysis")
 
     # Visualising the Soybean prices
     st.markdown(f"**Soybean Modal Price plotted for {district}:**")
