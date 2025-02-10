@@ -1,9 +1,5 @@
 # Crop Price Volatility Analysis
 
-[![Contributors](https://img.shields.io/github/contributors/AbbinavSK/CropPrice-Analysis)](https://github.com/AbbinavSK/CropPrice-Analysis/graphs/contributors)
-[![License](https://img.shields.io/github/license/AbbinavSK/CropPrice-Analysis)](LICENSE)
-[![Issues](https://img.shields.io/github/issues/AbbinavSK/CropPrice-Analysis)](https://github.com/AbbinavSK/CropPrice-Analysis/issues)
-
 A data-driven approach to analyzing crop prices and predicting price volatility using machine learning models. This project aims to provide insights into agricultural markets by leveraging statistical and predictive modeling techniques.
 
 ---
@@ -29,3 +25,5 @@ A data-driven approach to analyzing crop prices and predicting price volatility 
 ---
 
 ## 📂 Project Structure
+
+CropPrice-Analysis/ ├── data/ # Input datasets ├── notebooks/ # Jupyter Notebooks for EDA and model development ├── src/ # Source code for models and utilities ├── outputs/ # Generated visualizations and results ├── .github/ # GitHub workflows and configurations ├── README.md # Project documentation ├── requirements.txt # Dependencies └── LICENSE # License file
