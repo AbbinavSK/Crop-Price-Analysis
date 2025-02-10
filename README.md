@@ -1,4 +1,4 @@
-# Crop Price Volatility Analysis
+# Crop Price Analysis: Assessing the impact of meteorological factors on crop price volatility
 
 [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://crop-price-analysis.streamlit.app/)
 
