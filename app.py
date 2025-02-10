@@ -14,20 +14,6 @@ from arch import arch_model
 mp_districts = ['Ashoknagar', 'Chhindwara', 'Dewas', 'Guna', 'Harda', 'Indore', 'Khandwa', 'Khargone', 'Mandsaur', 
              'Raisen', 'Rajgarh', 'Sagar', 'Sehore', 'Shajapur', 'Shivpuri', 'Tikamgarh', 'Ujjain', 'Vidisha']
 
-# Function to clean the meteorological data: Precipitation and Max Temperature
-def cleaning_met_data(data):
-    data['Date'] = pd.to_datetime(data['Date'])
-    data.set_index('Date', inplace=True)
-    data = data.loc['2012-02-01':'2024-10-31']
-
-    for col in data.columns:
-        if col not in mp_districts:
-            data.drop(col, axis=1, inplace=True)
-
-    data.reset_index(inplace=True)
-
-    return data
-
 # Function to clean and fetch the price log returns
 def price_log_returns(data):
     df_logreturns = pd.DataFrame()
@@ -96,34 +82,28 @@ analysis_type = st.sidebar.radio("Select Analysis Level", ["District-Level", "St
 #--------------------------------------------------------------------------------------------------------------------------------------
 # Importing and cleaning the data
 data = pd.read_excel("SOYBEAN-MODALPRICE-MONTHLY(Selected).xlsx")
-prec_data = pd.read_csv("PRECTOTCORR_MONTHLY_MP.csv")
-tmax_data = pd.read_csv("T2M_MAX_MONTHLY_MP.csv")
-
 data["Price Date"] = pd.to_datetime(data["Price Date"])
-prec_data = cleaning_met_data(prec_data)
-tmax_data = cleaning_met_data(tmax_data)
 
 df_logreturns = price_log_returns(data)
 df_condvol = price_cond_vol(df_logreturns)
 
 #--------------------------------------------------------------------------------------------------------------------------------------
-# # District-Level Analysis
 # State-Level Analysis
 if analysis_type == "State-Level":
 
     st.markdown("**Changes in Soybean Price Volatility across Madhya Pradesh:**")
-    st.image("Volatility-Surface-MP.gif", use_column_width=True)
+    st.image("Volatility-Surface-MP(2020-24)(1).gif", use_container_width=True)
+    st.image("Volatility-Surface(2020-24)(1).gif", use_container_width=True)
 
+# District-Level Analysis
 elif analysis_type == "District-Level":
     district = st.sidebar.selectbox('Districts', mp_districts)
-  
     lstm_data = pd.read_csv("Soybean-MP-districtlevel-LSTMpred.csv")
     lstm_dates = df_condvol["Price Date"].iloc[-len(lstm_data):].reset_index(drop=True)
     df_lstm_pred = pd.DataFrame({
         "Price Date": lstm_dates,
         "LSTM Prediction": lstm_data[district].iloc[:len(lstm_data)].values
     })
-
     # Visualising the Soybean prices
     st.markdown(f"**Soybean Modal Price plotted for {district}:**")
     plot_graph(x_values=[data["Price Date"]], y_values=[data[district]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
