@@ -1,44 +1,26 @@
-'''App to showcase the Crop Price Analysis: Madhya Pradesh'''
+'''App to showcase the analysis done for the paper: The Impact of Meteorological Factors on Crop Price Volatility in India: Case studies of Soybean and Brinjal'''
 
 # Importing the necessary libraries
 import streamlit as st
 
 import pandas as pd
-import plotly.graph_objects as go
 import numpy as np
-
-import arch 
-from arch import arch_model
+import plotly.graph_objects as go
 #--------------------------------------------------------------------------------------------------------------------------------------
-# Initialising the list of districts as a global variable
-mp_districts = ['Ashoknagar', 'Chhindwara', 'Dewas', 'Guna', 'Harda', 'Indore', 'Khandwa', 'Khargone', 'Mandsaur', 
-             'Raisen', 'Rajgarh', 'Sagar', 'Sehore', 'Shajapur', 'Shivpuri', 'Tikamgarh', 'Ujjain', 'Vidisha']
 
-# Function to clean and fetch the price log returns
-def price_log_returns(data):
-    df_logreturns = pd.DataFrame()
-    df_logreturns["Price Date"] = data["Price Date"]
+default_image = "India_Map.jpeg"
+data_path = "Combined_data(State-level).csv"
 
-    for district in mp_districts:
-        df_logreturns[district] = np.log(data[district]) - np.log(data[district].shift(1))
-    df_logreturns = df_logreturns.dropna()
-    df_logreturns = df_logreturns[:-2]
+#--------------------------------------------------------------------------------------------------------------------------------------
+# Function to read the necessary csv files
+def read_csv(path):
+    df = pd.read_csv(path)
+    df["Price Date"] = pd.to_datetime(df["Price Date"], format="%Y-%m-%d")
 
-    return df_logreturns
-
-# Function to clean and fetch the price conditional volatility
-def price_cond_vol(df_logreturns):
-    df_condvol = pd.DataFrame()
-    df_condvol["Price Date"] = df_logreturns["Price Date"]
-
-    for district in mp_districts:
-        df_condvol[district] = arch_model(df_logreturns[district], vol='EGARCH', p=1, o=1, q=1).fit(disp='off').conditional_volatility
-    df_condvol = df_condvol.dropna()
-    
-    return df_condvol
+    return df
 
 # Function to plot a 2D graph in plotly
-def plot_graph(x_values, y_values, labels, colors, xaxis_title, yaxis_title):
+def plot_graph(x_values, y_values, labels, colors, xaxis_title, yaxis_title, y_range=None):
     fig = go.Figure()
 
     for x, y, label, color in zip(x_values, y_values, labels, colors):
@@ -49,7 +31,7 @@ def plot_graph(x_values, y_values, labels, colors, xaxis_title, yaxis_title):
             line=dict(color=color, width=2)
         ))
 
-    fig.update_layout(
+    layout_kwargs = dict(
         xaxis_title=xaxis_title,
         yaxis_title=yaxis_title,
         template="plotly_dark",
@@ -60,62 +42,46 @@ def plot_graph(x_values, y_values, labels, colors, xaxis_title, yaxis_title):
         paper_bgcolor="black",
         width=1200,
         height=400,
-    
         legend=dict(
-                orientation="h",
-                yanchor="top",
-                y=-0.2,
-                xanchor="center",
-                x=0.5
-            )
+            orientation="h",
+            yanchor="top",
+            y=-0.2,
+            xanchor="center",
+            x=0.5
+        )
     )
+
+    if y_range is not None:
+        layout_kwargs["yaxis"] = dict(range=y_range)
+
+    fig.update_layout(**layout_kwargs)
     st.plotly_chart(fig, use_container_width=True)
 
 #--------------------------------------------------------------------------------------------------------------------------------------
-# Title Element:
-st.title(body="Crop Price Analysis: Soybean in Madhya Pradesh", anchor="center")
-
-# Sidebar Elements:
-st.sidebar.header("Input Parameters")
-analysis_type = st.sidebar.radio("Select Analysis Level", ["District-Level", "State-Level"])
-
+data = read_csv(data_path)
+states = data["State"].unique()
 #--------------------------------------------------------------------------------------------------------------------------------------
-# Importing and cleaning the data
-data = pd.read_excel("SOYBEAN-MODALPRICE-MONTHLY(Selected).xlsx")
-data["Price Date"] = pd.to_datetime(data["Price Date"])
 
-df_logreturns = price_log_returns(data)
-df_condvol = price_cond_vol(df_logreturns)
+st.title("Assessing the Impact of Meteorological Factors on Crop Price Volatility in India: Case studies of Soybean in Madhya Pradesh and Brinjal in Odisha")
+selected_state = st.sidebar.selectbox('Select a State', ['Select a State'] + list(states))
 
-#--------------------------------------------------------------------------------------------------------------------------------------
-# State-Level Analysis
-if analysis_type == "State-Level":
+try:
+    if selected_state != 'Select a State':
+        tabs1, tabs2 = st.tabs(["Temporal", "Spatial"])
+        with tabs1:
+            state_data = data[data["State"] == selected_state]
+            state_data = data[data["State"] == selected_state].sort_values(by="Price Date")
 
-    st.markdown("**Changes in Soybean Price Volatility across Madhya Pradesh:**")
-    st.image("Volatility-Surface-MP(2020-24)(1).gif", use_container_width=True)
-    st.image("Volatility-Surface(2020-24)(1).gif", use_container_width=True)
+            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean"]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
+            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean_LogReturns"]], labels="Log Returns", colors=["green"], xaxis_title="Date", yaxis_title="Log Returns", y_range=[-0.81, 0.81])
+            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean_Squared_LogReturns"]], labels="Squared Log Returns", colors=["yellow"], xaxis_title="Date", yaxis_title="Squared Log Returns", y_range=[0, 0.63])
+            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean_LogReturns_CondVol"]], labels="Conditional Volatility", colors=["magenta"], xaxis_title="Date", yaxis_title="Conditional Volatility", y_range=[0, 0.7])
+    
+        with tabs2:
+            volsurface_path = f"{selected_state}_VolatilitySurface_2D_3D.gif"
+            st.image(volsurface_path, caption=f"2D and 3D Volatility Surfaces for {selected_state}", use_container_width=True)
+    else:
+        st.image(default_image, use_container_width=True)
 
-# District-Level Analysis
-elif analysis_type == "District-Level":
-    district = st.sidebar.selectbox('Districts', mp_districts)
-    lstm_data = pd.read_csv("Soybean-MP-districtlevel-LSTMpred.csv")
-    lstm_dates = df_condvol["Price Date"].iloc[-len(lstm_data):].reset_index(drop=True)
-    df_lstm_pred = pd.DataFrame({
-        "Price Date": lstm_dates,
-        "LSTM Prediction": lstm_data[district].iloc[:len(lstm_data)].values
-    })
-    # Visualising the Soybean prices
-    st.markdown(f"**Soybean Modal Price plotted for {district}:**")
-    plot_graph(x_values=[data["Price Date"]], y_values=[data[district]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
-
-    # Visualising the Soybean price log returns 
-    st.markdown(f"**Soybean Price Log Returns plotted for {district}:**")
-    plot_graph(x_values=[df_logreturns["Price Date"]], y_values=[df_logreturns[district]], labels="Log Returns", colors=["green"], xaxis_title="Date", yaxis_title="Log Returns")
-
-    # Visualising the Soybean price conditional volatility from EGARCH(1, 1, 1) model
-    st.markdown(f"**Soybean Price Conditional Volatility for {district}:**")
-    plot_graph(x_values=[df_condvol["Price Date"]], y_values=[df_condvol[district]], labels="Conditional Volatility", colors=["magenta"], xaxis_title="Date", yaxis_title="Conditional Volatility")
-
-    # Visualising the Soybean price conditional volatility with LSTM prediction
-    st.markdown(f"**Soybean Price Conditional Volatility with LSTM Prediction for {district}:**")
-    plot_graph(x_values=[df_condvol["Price Date"], df_lstm_pred["Price Date"]], y_values=[df_condvol[district], df_lstm_pred["LSTM Prediction"]], labels=["Conditional Volatility", "LSTM Prediction"], colors=["red", "cyan"],xaxis_title="Date",yaxis_title="Conditional Volatility")
+except FileNotFoundError:
+    st.error("The required CSV files were not found. Please make sure the required files are in the working directory.")
