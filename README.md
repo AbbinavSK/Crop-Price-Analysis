@@ -1,4 +1,4 @@
-# Crop Price Analysis: Assessing the impact of meteorological factors on crop price volatility
+# Assessing the impact of meteorological factors on crop price volatility in India: Case studies of soybean and brinjal
 
 [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://crop-price-analysis.streamlit.app/)
 
