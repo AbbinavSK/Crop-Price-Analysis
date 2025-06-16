@@ -4,6 +4,7 @@
 import streamlit as st
 
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
 #--------------------------------------------------------------------------------------------------------------------------------------
 # Path to data file and default image
@@ -14,7 +15,7 @@ data_path = "data.csv"
 # Function to read the necessary csv files
 def read_csv(path):
     df = pd.read_csv(path)
-    df["Price Date"] = pd.to_datetime(df["Price Date"], format="%Y-%m-%d")
+    df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
 
     return df
 
@@ -71,20 +72,23 @@ try:
         tabs1, tabs2 = st.tabs(["Temporal", "Spatial"])
         with tabs1:
             state_data = data[data["State"] == selected_state]
-            state_data = data[data["State"] == selected_state].sort_values(by="Price Date")
+            state_data = data[data["State"] == selected_state].sort_values(by="Date")
             crop = state_data["Crop"].unique()[0]
 
             st.markdown(f"Modal Price of {crop} in {selected_state} from 2012 to 2024: ")
-            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean"]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
+            plot_graph(x_values=[state_data["Date"]], y_values=[state_data["Modal_Price"]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
 
             st.markdown(f"Log Returns of {crop} in {selected_state} from 2012 to 2024: ")
-            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean_LogReturns"]], labels="Log Returns", colors=["green"], xaxis_title="Date", yaxis_title="Log Returns", y_range=[-0.81, 0.81])
+            plot_graph(x_values=[state_data["Date"]], y_values=[state_data["Log_Returns"]], labels="Log Returns", colors=["green"], xaxis_title="Date", yaxis_title="Log Returns", y_range=[-0.81, 0.81])
 
             st.markdown(f"Squared Log Returns of {crop} in {selected_state} from 2012 to 2024: ")
-            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean_Squared_LogReturns"]], labels="Squared Log Returns", colors=["yellow"], xaxis_title="Date", yaxis_title="Squared Log Returns", y_range=[0, 0.63])
+            plot_graph(x_values=[state_data["Date"]], y_values=[state_data["Squared_Log_Returns"]], labels="Squared Log Returns", colors=["yellow"], xaxis_title="Date", yaxis_title="Squared Log Returns", y_range=[0, 0.63])
 
             st.markdown(f"Conditional Volatility of {crop} in {selected_state} from 2012 to 2024: ")
-            plot_graph(x_values=[state_data["Price Date"]], y_values=[state_data["State_Mean_LogReturns_CondVol"]], labels="Conditional Volatility", colors=["magenta"], xaxis_title="Date", yaxis_title="Conditional Volatility", y_range=[0, 0.7])
+            plot_graph(x_values=[state_data["Date"]], y_values=[state_data["Conditional_Volatility"]], labels="Conditional Volatility", colors=["magenta"], xaxis_title="Date", yaxis_title="Conditional Volatility", y_range=[0, 0.7])
+
+            st.markdown(f"SARIMAX and LSTM Predictions of Conditional Volatility for {crop} in {selected_state} during the testing period: ")
+            plot_graph(x_values=[state_data["Date"], state_data["Date"], state_data["Date"]], y_values=[state_data["Conditional_Volatility"], state_data["SARIMAX_pred"], state_data["LSTM_pred"]], labels=["Conditional Volatility", "SARIMAX", "LSTM"], colors=["magenta", "orange", "green"], xaxis_title="Date", yaxis_title="Conditional Volatility", y_range=[0, 0.7])
     
         with tabs2:
             volsurface_path_2D = f"{selected_state}_VolatilitySurface_2D.gif"
