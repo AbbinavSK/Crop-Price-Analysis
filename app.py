@@ -64,7 +64,7 @@ states = data["State"].unique()
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 # Main body of the Streamlit app
-st.title("Impact of Meteorological Factors on Crop Price Volatility in India: Case studies of Soybean and Brinjal")
+st.title("Crop Price Analysis in India: Case studies of Soybean and Brinjal")
 selected_state = st.sidebar.selectbox('Select a State', ['Select a State'] + list(states))
 
 try:
