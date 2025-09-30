@@ -76,7 +76,7 @@ try:
             crop = state_data["Crop"].unique()[0]
 
             st.markdown(f"Modal Price of {crop} in {selected_state} from 2012 to 2024: ")
-            plot_graph(x_values=[state_data["Date"]], y_values=[state_data["Modal_Price"]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (Rs./Quintal)")
+            plot_graph(x_values=[state_data["Date"]], y_values=[state_data["Modal_Price"]], labels="Modal Price", colors=["cyan"], xaxis_title="Date", yaxis_title="Modal Price (INR/Quintal)")
 
             st.markdown(f"Log Returns of {crop} in {selected_state} from 2012 to 2024: ")
             plot_graph(x_values=[state_data["Date"]], y_values=[state_data["Log_Returns"]], labels="Log Returns", colors=["green"], xaxis_title="Date", yaxis_title="Log Returns", y_range=[-0.81, 0.81])
@@ -101,3 +101,4 @@ try:
 
 except FileNotFoundError:
     st.error("The required CSV files were not found. Please make sure the required files are in the working directory.")
+
